@@ -69,7 +69,7 @@ podTemplate(
     
     stage("Blue-Green deployment stage"){
       // Determine which deployment is active
-      activeSvc = sh (returnStdout: true, script: "oc get route kitchensink -n kicthensink -o jsonpath='{ .spec.to.name }'").trim()
+      activeSvc = sh (returnStdout: true, script: "oc get route kitchensink -n kitchensink -o jsonpath='{ .spec.to.name }'").trim()
       if (activeSvc == "kitchensink-blue"){
         destSvc = "kitchensink-green"
       } else {
