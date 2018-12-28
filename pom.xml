@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <groupId>org.jboss.as.quickstarts</groupId>
-   <artifactId>jboss-as-kitchensink</artifactId>
+   <artifactId>kitchensink</artifactId>
    <version>1.1</version>
    <packaging>war</packaging>
    <name>JBoss AS Quickstarts: kitchensink</name>
