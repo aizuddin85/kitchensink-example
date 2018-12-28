@@ -1,0 +1,6 @@
+projectKey=org.jboss.as.quickstarts:jboss-as-kitchensink
+serverUrl=http://sonarqube-sonarqube.cloudapps.bytewise.com.my
+serverVersion=6.7.6.38781
+dashboardUrl=http://sonarqube-sonarqube.cloudapps.bytewise.com.my/dashboard/index/org.jboss.as.quickstarts:jboss-as-kitchensink
+ceTaskId=AWfz1nCjX6taWLA3RAyj
+ceTaskUrl=http://sonarqube-sonarqube.cloudapps.bytewise.com.my/api/ce/task?id=AWfz1nCjX6taWLA3RAyj
