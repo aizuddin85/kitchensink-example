@@ -22,7 +22,7 @@ podTemplate(
     def nexusRelUrl = "http://nexus3.nexus3.svc.cluster.local:8081/repository/releases"
     def mavenMirrorUrl = "http://nexus3-nexus3.cloudapps.bytewise.com.my/repository/maven-all-public"
     // Defining base Maven command.
-    def mvnCmd = "mvn -s nexus_settings.xml"
+    def mvnCmd = "mvn -s nexus-settings.xml"
 
     // Checking out source.
     stage("Checking out source code") {
