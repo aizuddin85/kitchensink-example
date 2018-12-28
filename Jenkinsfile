@@ -65,7 +65,7 @@ podTemplate(
       // Defining new build with new output target using Nexus mirror.
       sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n ${appNamespace}"
       // Start to build the new build definition using artifact uploaded to Nexus above.
-      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.war -n ${appNamespace}"
+      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/kitchensink/${version}/kitchensink-${version}.war -n ${appNamespace}"
     }
     stage("Determine Active Application"){
       // Determine which deployment is active
