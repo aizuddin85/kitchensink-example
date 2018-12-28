@@ -61,11 +61,11 @@ podTemplate(
 
     stage("Build & Tag Image"){
       // Delete old build definition and always exit True regardless exit code.
-      sh "oc delete bc ${appName} -n ${appNamespace} || true"
+      sh "oc delete bc ${appName} -n jenkins || true"
       // Defining new build with new output target using Nexus mirror.
-      sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n ${appNamespace}"
+      sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n jenkins"
       // Start to build the new build definition using artifact uploaded to Nexus above.
-      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.jar -n ${appNamespace}"
+      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.jar -n jenkins"
     
     stage("Blue-Green deployment stage"){
       // Determine which deployment is active
@@ -78,12 +78,15 @@ podTemplate(
       if (activeSvc == "kitchensink-blue"){
         // Tag green image as green latest
         sh "oc tag ${appName}:${devTag} ${appName}-green:latest -n ${appNamespace}"
-        // Make sure no automatic trigger sethttps://github.com/aizuddin85/kitchensink-example.git
-        sh "oc set triggers dc/${appName} --remove-all -n ${appNamespace}"
+        // Make sure no automatic trigger set
+        sh "oc set triggers dc/${appName}-green --remove-all -n ${appNamespace}"
         // Set new image
-        sh "oc set image dc/${appName} kitchensink=docker-registry.default.svc:5000/kitchensink/${appName}-green:latest -n ${appNamespace}"
+        sh "oc set image dc/${appName}-green kitchensink=docker-registry.default.svc:5000/kitchensink/${appName}-green:latest -n ${appNamespace}"
         // Rolling new green image
-        sh "oc rollout latest dc/${appName} -n ${appNamespace}"
+        sh "oc rollout latest dc/${appName}-green -n ${appNamespace}"
+        // Pointing route to service
+        sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"kitchensink-green\"}}}\' -n ${appNamespace}"
+
         } else{
         // Tag blue image as blue latest
         sh "oc tag ${appName}:${devTag} ${appName}-blue:latest -n ${appNamespace}"
