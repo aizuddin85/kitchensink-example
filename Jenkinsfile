@@ -66,8 +66,8 @@ podTemplate(
       sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n ${appNamespace}"
       // Start to build the new build definition using artifact uploaded to Nexus above.
       sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.war -n ${appNamespace}"
-    
-    stage("Blue-Green deployment stage"){
+    }
+    stage("Determine Active Application"){
       // Determine which deployment is active
       activeSvc = sh (returnStdout: true, script: "oc get route kitchensink -n kitchensink -o jsonpath='{ .spec.to.name }'").trim()
       if (activeSvc == "kitchensink-blue"){
@@ -77,14 +77,26 @@ podTemplate(
       }
       echo "Current Activate Service:       " + activeSvc
       echo "Deployment Service:             " + destSvc 
+    }
+    stage("Tagging Image"){
       // Tag green image as green latest
       sh "oc tag ${appName}:${devTag} ${destSvc}:latest -n ${appNamespace}"
+      }
+    
+    stage("Remove trigger if exists"){
       // Make sure no automatic trigger set
       sh "oc set triggers dc/${destSvc} --remove-all -n ${appNamespace}"
+      }
+    
+    stage("Set new image to the destination application"){
       // Set new image
       sh "oc set image dc/${destSvc} ${destSvc}=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
+     }
+    stage("Rolling out latest image"){
       // Rolling new green image
       sh "oc rollout latest dc/${destSvc} -n ${appNamespace}"
+      }
+    stage("Switching route to new active service"){
       // Pointing route to service
       sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"${destSvc}\"}}}\' -n ${appNamespace}"
       }
