@@ -82,7 +82,7 @@ podTemplate(
       // Make sure no automatic trigger set
       sh "oc set triggers dc/${destSvc} --remove-all -n ${appNamespace}"
       // Set new image
-      sh "oc set image dc/${destSvc} kitchensink=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
+      sh "oc set image dc/${destSvc} ${destSvc}=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
       // Rolling new green image
       sh "oc rollout latest dc/${destSvc} -n ${appNamespace}"
       // Pointing route to service
