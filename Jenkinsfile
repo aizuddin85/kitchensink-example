@@ -78,11 +78,7 @@ podTemplate(
       echo "Current Activate Service:       " + activeSvc
       echo "Deployment Service:             " + destSvc 
     }
-    stage("Tagging Image"){
-      // Tag green image as green latest
-      sh "oc tag ${appName}:${devTag} ${destSvc}:latest -n ${appNamespace}"
-    }
-    
+
     stage("Remove trigger if exists"){
       // Make sure no automatic trigger set
       sh "oc set triggers dc/${destSvc} --remove-all -n ${appNamespace}"
@@ -90,7 +86,7 @@ podTemplate(
     
     stage("Set new image to the destination application"){
       // Set new image
-      sh "oc set image dc/${destSvc} ${destSvc}=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
+      sh "oc set image dc/${destSvc} ${destSvc}=docker-registry.default.svc:5000/kitchensink/kitchensink:${devTag} -n ${appNamespace}"
     }
     stage("Rolling out latest image"){
       // Rolling new green image
