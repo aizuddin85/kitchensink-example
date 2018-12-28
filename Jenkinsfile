@@ -22,7 +22,7 @@ podTemplate(
     def nexusRelUrl = "http://nexus3.nexus3.svc.cluster.local:8081/repository/releases"
     def mavenMirrorUrl = "http://nexus3-nexus3.cloudapps.bytewise.com.my/repository/maven-all-public"
     // Defining base Maven command.
-    def mvnCmd = "mvn -s ../nexus_settings.xml"
+    def mvnCmd = "mvn -s nexus_settings.xml"
 
     // Checking out source.
     stage("Checking out source code") {
@@ -78,7 +78,7 @@ podTemplate(
       if (activeSvc == "kitchensink-blue"){
         // Tag green image as green latest
         sh "oc tag ${appName}:${devTag} ${appName}-green:latest -n ${appNamespace}"
-        // Make sure no automatic trigger set
+        // Make sure no automatic trigger sethttps://github.com/aizuddin85/kitchensink-example.git
         sh "oc set triggers dc/${appName} --remove-all -n ${appNamespace}"
         // Set new image
         sh "oc set image dc/${appName} kitchensink=docker-registry.default.svc:5000/kitchensink/${appName}-green:latest -n ${appNamespace}"
