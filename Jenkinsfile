@@ -61,11 +61,11 @@ podTemplate(
 
     stage("Build & Tag Image"){
       // Delete old build definition and always exit True regardless exit code.
-      sh "oc delete bc ${appName} -n jenkins || true"
+      sh "oc delete bc ${appName} -n ${appNamespace} || true"
       // Defining new build with new output target using Nexus mirror.
-      sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n jenkins"
+      sh "oc new-build --name=${appName} --binary=true  jboss-eap71-openshift:1.2 --to=${appName}/${appName}:${devTag} -e MAVEN_MIRROR_URL=${mavenMirrorUrl} -n ${appNamespace}"
       // Start to build the new build definition using artifact uploaded to Nexus above.
-      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.jar -n jenkins"
+      sh "oc start-build ${appName} --follow --from-file=http://nexus3.nexus3.svc.cluster.local:8081/repository/releases/org/jboss/as/quickstarts/jboss-as-kitchensink/${version}/jboss-as-kitchensink-${version}.jar -n ${appNamespace}"
     
     stage("Blue-Green deployment stage"){
       // Determine which deployment is active
