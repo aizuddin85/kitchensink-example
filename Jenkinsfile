@@ -37,7 +37,7 @@ podTemplate(
     def prodTag = "${version}"
     def destApp   = "kitchensink"
     def appName = "${destApp}"
-    def destSvc = "kitchensink-blue"
+    def destSvc = ""
     def activeApp = ""
 
     stage("Building Target"){
@@ -69,33 +69,24 @@ podTemplate(
     
     stage("Blue-Green deployment stage"){
       // Determine which deployment is active
-      activeSvc = sh (returnStdout: true, script: "oc get route kitchensink -n \${appNamespace} -o jsonpath='{ .spec.to.name }'").trim()
+      activeSvc = sh (returnStdout: true, script: "oc get route kitchensink -n kicthensink -o jsonpath='{ .spec.to.name }'").trim()
       if (activeSvc == "kitchensink-blue"){
         destSvc = "kitchensink-green"
+      } else {
+        destSvc = "kitchensink-blue"
       }
       echo "Current Activate Service:       " + activeSvc
       echo "Deployment Service:             " + destSvc 
-      if (activeSvc == "kitchensink-blue"){
-        // Tag green image as green latest
-        sh "oc tag ${appName}:${devTag} ${appName}-green:latest -n ${appNamespace}"
-        // Make sure no automatic trigger set
-        sh "oc set triggers dc/${appName}-green --remove-all -n ${appNamespace}"
-        // Set new image
-        sh "oc set image dc/${appName}-green kitchensink=docker-registry.default.svc:5000/kitchensink/${appName}-green:latest -n ${appNamespace}"
-        // Rolling new green image
-        sh "oc rollout latest dc/${appName}-green -n ${appNamespace}"
-        // Pointing route to service
-        sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"kitchensink-green\"}}}\' -n ${appNamespace}"
-
-        } else{
-        // Tag blue image as blue latest
-        sh "oc tag ${appName}:${devTag} ${appName}-blue:latest -n ${appNamespace}"
-        // Make sure no automatic trigger set
-        sh "oc set triggers dc/${appName} --remove-all -n ${appNamespace}"
-        // Set new image
-        sh "oc set image dc/${appName} kitchensink=docker-registry.default.svc:5000/kitchensink/${appName}-blue:latest -n ${appNamespace}"
-        // Rolling new green image
-        sh "oc rollout latest dc/${appName} -n ${appNamespace}"
+      // Tag green image as green latest
+      sh "oc tag ${appName}:${devTag} ${destSvc}:latest -n ${appNamespace}"
+      // Make sure no automatic trigger set
+      sh "oc set triggers dc/${destSvc} --remove-all -n ${appNamespace}"
+      // Set new image
+      sh "oc set image dc/${destSvc} kitchensink=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
+      // Rolling new green image
+      sh "oc rollout latest dc/${destSvc} -n ${appNamespace}"
+      // Pointing route to service
+      sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"${destSvc}\"}}}\' -n ${appNamespace}"
         }
       }
     }
