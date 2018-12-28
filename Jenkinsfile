@@ -86,7 +86,7 @@ podTemplate(
       // Rolling new green image
       sh "oc rollout latest dc/${destSvc} -n ${appNamespace}"
       // Pointing route to service
-      sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"${destSvc}\"}}}\' -n ${appNamespace}"
+      sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":${destSvc}}}}\' -n ${appNamespace}"
       }
     }
   }
