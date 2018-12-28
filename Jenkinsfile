@@ -81,25 +81,24 @@ podTemplate(
     stage("Tagging Image"){
       // Tag green image as green latest
       sh "oc tag ${appName}:${devTag} ${destSvc}:latest -n ${appNamespace}"
-      }
+    }
     
     stage("Remove trigger if exists"){
       // Make sure no automatic trigger set
       sh "oc set triggers dc/${destSvc} --remove-all -n ${appNamespace}"
-      }
+    }
     
     stage("Set new image to the destination application"){
       // Set new image
       sh "oc set image dc/${destSvc} ${destSvc}=docker-registry.default.svc:5000/kitchensink/${destSvc}:latest -n ${appNamespace}"
-     }
+    }
     stage("Rolling out latest image"){
       // Rolling new green image
       sh "oc rollout latest dc/${destSvc} -n ${appNamespace}"
-      }
+    }
     stage("Switching route to new active service"){
       // Pointing route to service
       sh "oc patch route/kitchensink -p '{\"spec\":{\"to\":{\"name\":\"${destSvc}\"}}}\' -n ${appNamespace}"
-      }
     }
   }
 }
